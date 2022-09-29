@@ -1,20 +1,28 @@
+#!/usr/bin/env groovy
+
 pipeline {
     agent any
     stages {
+        stage("test") {
+            steps {
+                 echo 'testing the application'
+                echo 'building the application'
+            }
+        }
         stage("build") {
             steps {
                 echo 'building the application'
             }
         }
-        stage("test") {
+        stage("deploy") {
             steps {
-                echo 'testing the application'
-            }
-        }
-              stage("deploy") {
-            steps {
-                echo 'deploying the application'
+                script {
+                def dockerCmd = 'docker run -p 3080:3080 -d maxts0gt/jenkins-demo-app:1.0.0' 
+                sshagent(['ec2-server-key']) {
+                    sh "ssh -o StrictHostKeyChecking=no ec2-user@54.234.144.50 ${dockerCmd}"
+                    }
+                }
+                }
             }
         }
     }
-}
